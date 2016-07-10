@@ -45,20 +45,6 @@ class PdfBookGenerator():
             return chapters_pdf_filepath
 
 
-    def copy_chapter_content(self, chapter_file, dst_file):
-        i = 0
-        for line in chapter_file:
-            if line == '## Navegación\n':
-                break
-            if i == 0:
-                # Remove number from chapter header.
-                line = re.sub(r'^# ([0-9]+)\.(.*)', r'# \2', line)
-
-            line = re.sub(r'(?<!\w)-(?!-)', '--', line) # Replace dialog '-'s with '--'s
-            
-            dst_file.write(line)
-            i += 1
-
     def generate_readme_sections_pdf(self, book_style, section_headers):
         (_, temp_filepath) = tempfile.mkstemp()
         (_, readme_sections_pdf_filepath) = tempfile.mkstemp()
