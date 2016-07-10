@@ -8,7 +8,7 @@ from book_generators.book_generator import BookGenerator
 
 
 class PdfBookGenerator(BookGenerator):
-    def generate_chapters_pdf(self, page_offset, book_style, chapters_directory):
+    def generate_chapters(self, page_offset, book_style, chapters_directory):
         chapters_markdown_file = ComposedMarkdownFile()
         chapters_markdown_file.append_string('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
         for filename in sorted(os.listdir(chapters_directory)):
@@ -30,10 +30,12 @@ class PdfBookGenerator(BookGenerator):
             chapters_pdf_filepath += '.pdf'
             call(["pandoc"] + pandoc_options + ["--output", chapters_pdf_filepath, monolithic_filepath])
 
-            return chapters_pdf_filepath
+            pdf = PdfFileReader(open(chapters_pdf_filepath,'rb'))
+
+            return (chapters_pdf_filepath, pdf.getNumPages())
 
 
-    def generate_readme_sections_pdf(self, book_style, section_headers):
+    def generate_readme_sections(self, book_style, section_headers):
         (_, temp_filepath) = tempfile.mkstemp()
         (_, readme_sections_pdf_filepath) = tempfile.mkstemp()
         readme_sections_pdf_filepath += '.pdf'
@@ -60,9 +62,12 @@ class PdfBookGenerator(BookGenerator):
 
         call(["pandoc"] + ["--from", "markdown-implicit_figures", "--output", readme_sections_pdf_filepath, temp_filepath])
 
-        return readme_sections_pdf_filepath
+        # Retrieve pages number
+        readme_sections_pdf = PdfFileReader(open(readme_sections_pdf_filepath,'rb'))
 
-    def generate_end_note_pdf(self, page_offset):
+        return (readme_sections_pdf_filepath, readme_sections_pdf.getNumPages())
+
+    def generate_end_note(self, page_offset):
         (_, temp_filepath) = tempfile.mkstemp()
         (_, end_note_pdf_filepath) = tempfile.mkstemp()
         end_note_pdf_filepath += '.pdf'
@@ -79,7 +84,7 @@ class PdfBookGenerator(BookGenerator):
 
         return end_note_pdf_filepath
 
-    def generate_cover_pdf(self):
+    def generate_cover(self):
         (_, cover_pdf_filepath) = tempfile.mkstemp()
         cover_pdf_filepath += '.pdf'
 
@@ -88,31 +93,41 @@ class PdfBookGenerator(BookGenerator):
         return cover_pdf_filepath
 
 
+    def merge_book_parts(self, part_filepaths, output_filepath):
+        pdf_merger = PdfFileMerger()
+
+        for part_filepath in part_filepaths:
+            pdf_merger.append(PdfFileReader(open(part_filepath, 'rb')))
+
+        pdf_merger.write(output_filepath)
+
+
     def generate_book(self, configuration):
-        cover_pdf_filepath = self.generate_cover_pdf()
-        readme_sections_pdf_filepath = \
-            self.generate_readme_sections_pdf(
+        cover_pdf_filepath = self.generate_cover()
+        (readme_sections_pdf_filepath, readme_sections_pdf_n_pages) = \
+            self.generate_readme_sections(
                 book_style=configuration['book_style'],
                 section_headers=configuration['section_headers'])
-        pdf = PdfFileReader(open(readme_sections_pdf_filepath,'rb'))
-        page_offset = pdf.getNumPages() + 1
+        page_offset = readme_sections_pdf_n_pages + 1
         if not configuration['book_style']:
             # Previous PDF in not book style mode includes an empty page not 
             # taken into account
             page_offset += 1
-        chapters_pdf_filepath = self.generate_chapters_pdf(
+        (chapters_pdf_filepath, chapters_pdf_n_pages) = self.generate_chapters(
             page_offset=page_offset, 
             book_style=configuration['book_style'], 
             chapters_directory=configuration['chapters_directory']
         )
-        pdf = PdfFileReader(open(chapters_pdf_filepath,'rb'))
-        page_offset += pdf.getNumPages() - 1
+        page_offset += chapters_pdf_n_pages - 1
         
-        end_note_pdf_filepath = self.generate_end_note_pdf(page_offset=page_offset)
+        end_note_pdf_filepath = self.generate_end_note(page_offset=page_offset)
             
-        pdf_merger = PdfFileMerger()
-        pdf_merger.append(PdfFileReader(open(cover_pdf_filepath, 'rb')))
-        pdf_merger.append(PdfFileReader(open(readme_sections_pdf_filepath, 'rb')))
-        pdf_merger.append(PdfFileReader(open(chapters_pdf_filepath, 'rb')))
-        pdf_merger.append(PdfFileReader(open(end_note_pdf_filepath, 'rb')))
-        pdf_merger.write(os.path.join('build', configuration['file_name']))
+        book_parts_paths = [
+            cover_pdf_filepath,
+            readme_sections_pdf_filepath,
+            chapters_pdf_filepath,
+            end_note_pdf_filepath
+        ]
+        book_filepath = os.path.join('build', configuration['file_name'])
+        self.merge_book_parts(book_parts_paths, book_filepath)
+        
