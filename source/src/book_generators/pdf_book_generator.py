@@ -3,30 +3,46 @@ import os
 import tempfile
 from subprocess import call
 from PyPDF2 import PdfFileMerger, PdfFileReader
+from composed_markdown_file import ComposedMarkdownFile
 
 
 class PdfBookGenerator():
-    def generate_chapters_pdf(self, page_offset, book_style, chapters_directory):
-        (_, monolitic_filepath) = tempfile.mkstemp()
-        (_, chapters_pdf_filepath) = tempfile.mkstemp()
-        chapters_pdf_filepath += '.pdf'
+    def process_chapter_markdown(self, markdown_content):
+        # Remove number from chapter header.
+        markdown_content = re.sub(r'^# ([0-9]+)\. (.*)', r'# \2', markdown_content)
 
-        pandoc_options = ["-V", "lang=es", "--from", "markdown+hard_line_breaks", "--toc", "--chapters"]
-        if book_style:
-            pandoc_options += ["-V", "documentclass=book"]
-        else:
-            pandoc_options += ["-V", "documentclass=report"]
+        # Replace dialog '-'s with '--'s
+        markdown_content = re.sub(r'(?<!\w)-(?!-)', '--', markdown_content)
+
+        # Remove Navigation section
+        markdown_content = re.sub(r'(.*)## Navegación(.*)', r'\1', markdown_content, flags=re.DOTALL)
+
+        return markdown_content
         
-        with open(monolitic_filepath, 'w') as monolitic_file:
-            monolitic_file.write('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
-            for filepath in sorted(os.listdir(chapters_directory)):
-                with open(os.path.join(chapters_directory, filepath), 'rU') as chapter_file:
-                    if filepath.startswith('c'):
-                        self.copy_chapter_content(chapter_file, monolitic_file)
 
-        call(["pandoc"] + pandoc_options + ["--output", chapters_pdf_filepath, monolitic_filepath])
+    def generate_chapters_pdf(self, page_offset, book_style, chapters_directory):
+        chapters_markdown_file = ComposedMarkdownFile()
+        chapters_markdown_file.append_string('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
+        for filename in sorted(os.listdir(chapters_directory)):
+            if filename.startswith('c'):
+                filepath = os.path.join(chapters_directory, filename)
+                chapters_markdown_file.append_file(filepath, self.process_chapter_markdown)
 
-        return chapters_pdf_filepath
+        (_, monolithic_filepath) = tempfile.mkstemp()
+        with open(monolithic_filepath, 'w') as monolithic_file:
+            monolithic_file.write(chapters_markdown_file.content())
+
+            pandoc_options = ["-V", "lang=es", "--from", "markdown+hard_line_breaks", "--toc", "--chapters"]
+            if book_style:
+                pandoc_options += ["-V", "documentclass=book"]
+            else:
+                pandoc_options += ["-V", "documentclass=report"]
+
+            (_, chapters_pdf_filepath) = tempfile.mkstemp()
+            chapters_pdf_filepath += '.pdf'
+            call(["pandoc"] + pandoc_options + ["--output", chapters_pdf_filepath, monolithic_filepath])
+
+            return chapters_pdf_filepath
 
 
     def copy_chapter_content(self, chapter_file, dst_file):
