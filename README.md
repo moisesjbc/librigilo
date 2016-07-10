@@ -30,11 +30,13 @@ So, if you still want to use the tool, go to the directory of your novel and sim
 
 ## Testing
 
-In order to run unit tests *pytest* is needed. It can be installed using pip
+In order to run unit tests *nosetests* and *pytest* are needed. It can be installed using pip
 
+        sudo apt-get install python3-nose
         pip3 install pytest
+        
 
 Run the tests
 
-        py.test
+        nosetests3
 
