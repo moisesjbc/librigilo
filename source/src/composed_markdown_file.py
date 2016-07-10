@@ -6,5 +6,5 @@ class ComposedMarkdownFile:
         return self.content_
 
     def append_file(self, file_path):
-        with open(file_path, 'r') as file:
+        with open(file_path, 'rU') as file:
             self.content_ += file.read()
