@@ -99,35 +99,4 @@ class PdfBookGenerator(BookGenerator):
         for part_filepath in part_filepaths:
             pdf_merger.append(PdfFileReader(open(part_filepath, 'rb')))
 
-        pdf_merger.write(output_filepath)
-
-
-    def generate_book(self, configuration):
-        cover_pdf_filepath = self.generate_cover()
-        (readme_sections_pdf_filepath, readme_sections_pdf_n_pages) = \
-            self.generate_readme_sections(
-                book_style=configuration['book_style'],
-                section_headers=configuration['section_headers'])
-        page_offset = readme_sections_pdf_n_pages + 1
-        if not configuration['book_style']:
-            # Previous PDF in not book style mode includes an empty page not 
-            # taken into account
-            page_offset += 1
-        (chapters_pdf_filepath, chapters_pdf_n_pages) = self.generate_chapters(
-            page_offset=page_offset, 
-            book_style=configuration['book_style'], 
-            chapters_directory=configuration['chapters_directory']
-        )
-        page_offset += chapters_pdf_n_pages - 1
-        
-        end_note_pdf_filepath = self.generate_end_note(page_offset=page_offset)
-            
-        book_parts_paths = [
-            cover_pdf_filepath,
-            readme_sections_pdf_filepath,
-            chapters_pdf_filepath,
-            end_note_pdf_filepath
-        ]
-        book_filepath = os.path.join('build', configuration['file_name'])
-        self.merge_book_parts(book_parts_paths, book_filepath)
-        
+        pdf_merger.write(output_filepath)       
