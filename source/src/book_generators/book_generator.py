@@ -16,31 +16,7 @@ class BookGenerator():
 
 
     def generate_chapters(self, page_offset, book_style, chapters_directory):
-        chapters_markdown_file = ComposedMarkdownFile()
-        chapters_markdown_file.append_string('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
-        for filename in sorted(os.listdir(chapters_directory)):
-            if filename.startswith('c'):
-                filepath = os.path.join(chapters_directory, filename)
-                chapters_markdown_file.append_file(filepath, self.process_chapter_markdown)
-
-        (_, monolithic_filepath) = tempfile.mkstemp()
-        with open(monolithic_filepath, 'w') as monolithic_file:
-            monolithic_file.write(chapters_markdown_file.content())
-
-            pandoc_options = ["-V", "lang=es", "--from", "markdown+hard_line_breaks", "--toc", "--chapters"]
-            if book_style:
-                pandoc_options += ["-V", "documentclass=book"]
-            else:
-                pandoc_options += ["-V", "documentclass=report"]
-
-            (_, chapters_pdf_filepath) = tempfile.mkstemp()
-            chapters_pdf_filepath += '.pdf'
-            call(["pandoc"] + pandoc_options + ["--output", chapters_pdf_filepath, monolithic_filepath])
-
-            pdf = PdfFileReader(open(chapters_pdf_filepath,'rb'))
-
-            return (chapters_pdf_filepath, pdf.getNumPages())
-
+        raise NotImplementedError
 
     def generate_readme_sections(self, book_style, section_headers):
         raise NotImplementedError

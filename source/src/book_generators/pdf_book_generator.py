@@ -99,4 +99,5 @@ class PdfBookGenerator(BookGenerator):
         for part_filepath in part_filepaths:
             pdf_merger.append(PdfFileReader(open(part_filepath, 'rb')))
 
-        pdf_merger.write(output_filepath)       
+        pdf_merger.write(output_filepath)
+       

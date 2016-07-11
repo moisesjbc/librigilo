@@ -3,6 +3,8 @@
 import os
 
 from book_generators.pdf_book_generator import PdfBookGenerator
+from book_generators.epub_book_generator import EpubBookGenerator
+
 
 if __name__ == "__main__":
     configurations = [
@@ -18,11 +20,23 @@ if __name__ == "__main__":
             'chapters_directory': 'manuscrito',
             'section_headers': ['## Sinopsis', '## Licencia', '## Agradecimientos']
         },
+        {
+            'file_name': 'libro-cuarto-poder.epub',
+            'book_style': True,
+            'chapters_directory': 'manuscrito',
+            'section_headers': ['## Sinopsis', '## Licencia', '## Agradecimientos']
+        }
     ]
 
     if not os.path.isdir('build'):
         os.mkdir('build')
 
     for configuration in configurations:
-        pdf_book_generator = PdfBookGenerator()
-        pdf_book_generator.generate_book(configuration)
+        if configuration['file_name'].endswith('.pdf'):
+            book_generator = PdfBookGenerator()
+        elif configuration['file_name'].endswith('.epub'):
+            book_generator = EpubBookGenerator()
+        else
+            raise RuntimeError('Output filename must end in .pdf or .epub')
+
+        book_generator.generate_book(configuration)
