@@ -36,7 +36,7 @@ if __name__ == "__main__":
             book_generator = PdfBookGenerator()
         elif configuration['file_name'].endswith('.epub'):
             book_generator = EpubBookGenerator()
-        else
+        else:
             raise RuntimeError('Output filename must end in .pdf or .epub')
 
         book_generator.generate_book(configuration)
