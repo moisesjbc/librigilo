@@ -16,6 +16,14 @@ Right now the tool is tightly coupled with my spanish novel [Cuarto Poder](https
 2. It must contain a *manuscrito* (manuscript) subdirectory containing a file for every chapter. The name of every chapter must start by 'c' (ie. c01_first-chapter).
     - If the chapter file contains links to previous / next chapters and you want them to be removed from the resulting book, those should be placed in a section `## Navegación` (Navigation) at the end of the file.
 3. A file *manuscrito/nota-final.md* ("manuscript/end-note") must exist.
+4. A file *epub_metadata.txt* must exist with the following structure:
+
+        ---
+        title: Cuarto Poder
+        author: Moisés J. Bonilla Caraballo
+        rights: Reconocimiento-NoComercial-CompartirIgual 4.0 Internacional de Creative Commons
+        language: es-ES
+        ...
 
 Also because of this big coupling with my novel, the output files will be named as follows:
 
