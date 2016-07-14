@@ -58,7 +58,17 @@ class EpubBookGenerator(BookGenerator):
         return (readme_sections_epub_filepath, 1)
 
     def generate_end_note(self, page_offset):
-        return ''
+        (_, dst_end_note_epub_filepath) = tempfile.mkstemp()
+        dst_end_note_epub_filepath += '.md'
+
+        with open('manuscrito/nota-final.md', 'rU') as src_end_note_file, open(dst_end_note_epub_filepath, 'w') as dst_end_note_epub_file:
+            for line in src_end_note_file:
+                if line == '## Navegación\n':
+                    break
+                dst_end_note_epub_file.write(line)
+
+        return dst_end_note_epub_filepath
+
 
     def generate_cover(self):
         (_, cover_epub_filepath) = tempfile.mkstemp()
@@ -71,4 +81,4 @@ class EpubBookGenerator(BookGenerator):
 
 
     def merge_book_parts(self, part_filepaths, output_filepath):
-        call(['pandoc', '-S', '-s', '--from', 'markdown', '--output', output_filepath] + part_filepaths[0:3])
+        call(['pandoc', '-S', '-s', '--from', 'markdown', '--output', output_filepath] + part_filepaths)
