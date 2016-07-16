@@ -3,12 +3,27 @@ from unittest import TestCase
 
 class TestConfiguration(TestCase):
 
+    TEST_OUTPUT_FILEPATH = 'book.pdf'
+    TEST_PREAMBLE_SECTIONS = ['## Sinopsis', '## License', '## Acknowledgements']
+    TEST_CHAPTERS_FILES = 'manuscript/chapter_*'
+    TEST_EPILOGUE_FILE = 'manuscript/epilogue.md'
+
     TEMPLATE_CONFIG = {
-        Configuration.OUTPUT_FILEPATH_KEY: 'book.pdf',
-        Configuration.PREAMBLE_SECTIONS_KEY: ['## Sinopsis', '## License', '## Acknowledgements'],
-        Configuration.CHAPTERS_FILES_KEY: 'manuscript/chapter_*',
-        Configuration.EPILOGUE_FILE_KEY: 'manuscript/epilogue.md'
+        Configuration.OUTPUT_FILEPATH_KEY: TEST_OUTPUT_FILEPATH,
+        Configuration.PREAMBLE_SECTIONS_KEY: TEST_PREAMBLE_SECTIONS,
+        Configuration.CHAPTERS_FILES_KEY: TEST_CHAPTERS_FILES,
+        Configuration.EPILOGUE_FILE_KEY: TEST_EPILOGUE_FILE
     }
+
+
+    def test_check_constructor(self):
+        config = Configuration(self.TEMPLATE_CONFIG)
+
+        assert self.TEST_OUTPUT_FILEPATH == config.OUTPUT_FILEPATH
+        assert self.TEST_PREAMBLE_SECTIONS == config.PREAMBLE_SECTIONS
+        assert self.TEST_CHAPTERS_FILES == config.CHAPTERS_FILES
+        assert self.TEST_EPILOGUE_FILE == config.EPILOGUE_FILE
+        
 
     def test_check_required_fields_ok(self):
         assert True == Configuration.check_required_fields(self.TEMPLATE_CONFIG)
