@@ -4,23 +4,22 @@ import tempfile
 from subprocess import call
 from composed_markdown_file import ComposedMarkdownFile
 from book_generators.book_generator import BookGenerator
+from glob import glob
 
 
 class EpubBookGenerator(BookGenerator):
-    def generate_chapters(self, page_offset, book_style, chapters_directory):
+    def generate_chapters(self, page_offset, book_style, chapters_files_regex):
         chapters_markdown_file = ComposedMarkdownFile()
         #chapters_markdown_file.append_string('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
-        for filename in sorted(os.listdir(chapters_directory)):
-            if filename.startswith('c'):
-                filepath = os.path.join(chapters_directory, filename)
-                chapters_markdown_file.append_file(filepath, self.process_chapter_markdown)
+        for filepath in sorted(glob(chapters_files_regex)):
+            chapters_markdown_file.append_file(filepath, self.process_chapter_markdown)
 
         (_, monolithic_filepath) = tempfile.mkstemp()
         with open(monolithic_filepath, 'w') as monolithic_file:
             monolithic_file.write(chapters_markdown_file.content())
 
             pandoc_options = ["-t", "markdown", "-V", "lang=es", "--from", "markdown+hard_line_breaks", "--toc", "--chapters"]
-            if book_style:
+            if book_style == True:
                 pandoc_options += ["-V", "documentclass=book"]
             else:
                 pandoc_options += ["-V", "documentclass=report"]
@@ -57,11 +56,11 @@ class EpubBookGenerator(BookGenerator):
         # TODO: Return real number of pages.
         return (readme_sections_epub_filepath, 1)
 
-    def generate_end_note(self, page_offset):
+    def generate_end_note(self, prologue_filepath, page_offset):
         (_, dst_end_note_epub_filepath) = tempfile.mkstemp()
         dst_end_note_epub_filepath += '.md'
 
-        with open('manuscrito/nota-final.md', 'rU') as src_end_note_file, open(dst_end_note_epub_filepath, 'w') as dst_end_note_epub_file:
+        with open(prologue_filepath, 'rU') as src_end_note_file, open(dst_end_note_epub_filepath, 'w') as dst_end_note_epub_file:
             for line in src_end_note_file:
                 if line == '## Navegación\n':
                     break

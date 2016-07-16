@@ -1,5 +1,6 @@
 import re
 import os
+from configuration import Configuration
 
 class BookGenerator():
     def process_chapter_markdown(self, markdown_content):
@@ -15,7 +16,7 @@ class BookGenerator():
         return markdown_content
 
 
-    def generate_chapters(self, page_offset, book_style, chapters_directory):
+    def generate_chapters(self, page_offset, book_style, chapters_files):
         raise NotImplementedError
 
     def generate_readme_sections(self, book_style, section_headers):
@@ -32,24 +33,28 @@ class BookGenerator():
 
 
     def generate_book(self, configuration):
+        assert isinstance(configuration, Configuration)
+
         cover_pdf_filepath = self.generate_cover()
         (readme_sections_pdf_filepath, readme_sections_pdf_n_pages) = \
             self.generate_readme_sections(
-                book_style=configuration['book_style'],
-                section_headers=configuration['section_headers'])
+                book_style=configuration.BOOK_STYLE,
+                section_headers=configuration.PREAMBLE_SECTIONS)
         page_offset = readme_sections_pdf_n_pages + 1
-        if not configuration['book_style']:
+        if not configuration.BOOK_STYLE:
             # Previous PDF in not book style mode includes an empty page not 
             # taken into account
             page_offset += 1
         (chapters_pdf_filepath, chapters_pdf_n_pages) = self.generate_chapters(
             page_offset=page_offset, 
-            book_style=configuration['book_style'], 
-            chapters_directory=configuration['chapters_directory']
+            book_style=configuration.BOOK_STYLE, 
+            chapters_files_regex=configuration.CHAPTERS_FILES
         )
         page_offset += chapters_pdf_n_pages - 1
         
-        end_note_pdf_filepath = self.generate_end_note(page_offset=page_offset)
+        end_note_pdf_filepath = \
+            self.generate_end_note(prologue_filepath=configuration.EPILOGUE_FILE,          
+                                    page_offset=page_offset)
             
         book_parts_paths = [
             cover_pdf_filepath,
@@ -57,5 +62,5 @@ class BookGenerator():
             chapters_pdf_filepath,
             end_note_pdf_filepath
         ]
-        book_filepath = os.path.join('build', configuration['file_name'])
+        book_filepath = configuration.OUTPUT_FILEPATH
         self.merge_book_parts(book_parts_paths, book_filepath)
