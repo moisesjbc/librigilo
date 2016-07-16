@@ -22,12 +22,8 @@ if __name__ == "__main__":
         print("ERROR: expected --config-file")
         sys.exit(1)
 
-
     configurations = \
         Configuration.load_configurations_from_json_file(args.config_filepath)
-
-    if not os.path.isdir('build'):
-        os.mkdir('build')
 
     for configuration in configurations:
         if configuration.OUTPUT_FILEPATH.endswith('.pdf'):
