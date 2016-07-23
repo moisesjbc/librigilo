@@ -36,3 +36,16 @@ class TestComposedMarkdownFile:
  
         with open(expected_file_path, 'r') as expected_file:
             assert expected_file.read() == dst_file.content()
+
+
+    def test_append_file_sections(self):
+        src_file_path = \
+            TestComposedMarkdownFile.asset_path('src_file_with_multiple_sections.md')
+        expected_file_path = \
+            TestComposedMarkdownFile.asset_path('dst_file_with_multiple_sections.md')
+
+        dst_file = ComposedMarkdownFile()
+        dst_file.append_file_sections(src_file_path, ['### Section 3', '## Section 2'])
+ 
+        with open(expected_file_path, 'r') as expected_file:
+            assert expected_file.read() == dst_file.content()

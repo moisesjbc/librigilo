@@ -34,30 +34,29 @@ class PdfBookGenerator(BookGenerator):
             return (chapters_pdf_filepath, pdf.getNumPages())
 
 
+    # FIXME: This is supposing sections are shorter than a page.
+    def process_readme_section(self, section_content, book_style=True):
+        if book_style:
+            section_content = '\\mbox{}\n\n\\thispagestyle{empty}\n\n\\newpage\n\n' + section_content
+
+        section_content += '\\mbox{}\n\n\\thispagestyle{empty}\n\n\\newpage\n\n' 
+        
+        return section_content
+
+
     def generate_readme_sections(self, book_style, section_headers):
         (_, temp_filepath) = tempfile.mkstemp()
         (_, readme_sections_pdf_filepath) = tempfile.mkstemp()
         readme_sections_pdf_filepath += '.pdf'
 
+        markdown_content = ComposedMarkdownFile()
+        markdown_content.append_string('\\pagenumbering{gobble}\n\n') # No page numbers.
+
+        markdown_content.append_file_sections('README.md', section_headers, lambda x: self.process_readme_section(x, book_style))
+        markdown_content.append_string('\\mbox{}\n\n\\thispagestyle{empty}\n\n\\newpage\n\n')
+
         with open(temp_filepath, 'w') as temp_file:
-            temp_file.write('\\pagenumbering{gobble}\n\n') # No page numbers.
-            with open('README.md', 'rU') as readme_file:
-                copy_line = False
-                for line in readme_file:
-                    if line.startswith('#'):
-                        temp_file.write('\\newpage')
-                        if line[:-1] in section_headers:
-                            if book_style:
-                                temp_file.write('\\mbox{}\n\n\\thispagestyle{empty}\n\n\\newpage\n\n')
-                        copy_line = line[:-1] in section_headers
-
-                    if copy_line:
-                        if line.startswith('#'):
-                            temp_file.write(line[1:]) # Make header top level.
-                        else:
-                            temp_file.write(line)
-
-            temp_file.write('\\mbox{}\n\n\\thispagestyle{empty}\n\n\\newpage\n\n')
+            temp_file.write(markdown_content.content())
 
         call(["pandoc"] + ["--from", "markdown-implicit_figures", "--output", readme_sections_pdf_filepath, temp_filepath])
 

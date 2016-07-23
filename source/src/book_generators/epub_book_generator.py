@@ -37,19 +37,12 @@ class EpubBookGenerator(BookGenerator):
         (_, readme_sections_epub_filepath) = tempfile.mkstemp()
         readme_sections_epub_filepath += '.md'
 
-        with open(temp_filepath, 'w') as temp_file:
-            #temp_file.write('\\pagenumbering{gobble}\n\n') # No page numbers.
-            with open('README.md', 'rU') as readme_file:
-                copy_line = False
-                for line in readme_file:
-                    if line.startswith('#'):
-                        copy_line = line[:-1] in section_headers
+        markdown_content = ComposedMarkdownFile()
 
-                    if copy_line:
-                        if line.startswith('#'):
-                            temp_file.write(line[1:]) # Make header top level.
-                        else:
-                            temp_file.write(line)
+        markdown_content.append_file_sections('README.md', section_headers)
+
+        with open(temp_filepath, 'w') as temp_file:
+            temp_file.write(markdown_content.content())
 
         call(["pandoc", "-t", "markdown", "--from", "markdown-implicit_figures", "--output", readme_sections_epub_filepath, temp_filepath])
 
