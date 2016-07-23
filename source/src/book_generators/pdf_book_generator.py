@@ -9,6 +9,15 @@ from glob import glob
 
 
 class PdfBookGenerator(BookGenerator):
+    def process_chapter_markdown(self, markdown_content):
+        # Remove number from chapter header.
+        markdown_content = re.sub(r'^# ([0-9]+)\. (.*)', r'# \2', markdown_content)
+
+        markdown_content = super().process_chapter_markdown(markdown_content)
+
+        return markdown_content
+
+
     def generate_chapters(self, page_offset, book_style, chapters_files_regex):
         chapters_markdown_file = ComposedMarkdownFile()
         chapters_markdown_file.append_string('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
