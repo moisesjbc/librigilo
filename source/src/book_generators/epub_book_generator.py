@@ -49,15 +49,16 @@ class EpubBookGenerator(BookGenerator):
         # TODO: Return real number of pages.
         return (readme_sections_epub_filepath, 1)
 
-    def generate_end_note(self, prologue_filepath, page_offset):
+    def generate_end_note(self, prologue_filepaths, page_offset):
         (_, dst_end_note_epub_filepath) = tempfile.mkstemp()
         dst_end_note_epub_filepath += '.md'
 
-        with open(prologue_filepath, 'rU') as src_end_note_file, open(dst_end_note_epub_filepath, 'w') as dst_end_note_epub_file:
-            for line in src_end_note_file:
-                if line == '## Navegación\n':
-                    break
-                dst_end_note_epub_file.write(line)
+        for prologue_filepath in prologue_filepaths:
+            with open(prologue_filepath, 'rU') as src_end_note_file, open(dst_end_note_epub_filepath, 'a') as dst_end_note_epub_file:
+                for line in src_end_note_file:
+                    if line == '## Navegación\n':
+                        break
+                    dst_end_note_epub_file.write(line)
 
         return dst_end_note_epub_filepath
 

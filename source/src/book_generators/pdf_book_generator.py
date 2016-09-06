@@ -74,18 +74,19 @@ class PdfBookGenerator(BookGenerator):
 
         return (readme_sections_pdf_filepath, readme_sections_pdf.getNumPages())
 
-    def generate_end_note(self, prologue_filepath, page_offset):
+    def generate_end_note(self, prologue_filepaths, page_offset):
         (_, temp_filepath) = tempfile.mkstemp()
         (_, end_note_pdf_filepath) = tempfile.mkstemp()
         end_note_pdf_filepath += '.pdf'
 
-        with open(temp_filepath, 'w') as temp_file:
-            with open(prologue_filepath, 'rU') as src_file:
-                temp_file.write('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
-                for line in src_file:
-                    if line == '## Navegación\n':
-                        break
-                    temp_file.write(line)
+        for prologue_filepath in prologue_filepaths:
+            with open(temp_filepath, 'a') as temp_file:
+                with open(prologue_filepath, 'rU') as src_file:
+                    temp_file.write('\n\n\\setcounter{page}{%s}\n\n' % page_offset)
+                    for line in src_file:
+                        if line == '## Navegación\n':
+                            break
+                        temp_file.write(line)
 
         call(["pandoc"] + ["--output", end_note_pdf_filepath, temp_filepath])
 

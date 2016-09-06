@@ -6,13 +6,13 @@ class TestConfiguration(TestCase):
     TEST_OUTPUT_FILEPATH = 'book.pdf'
     TEST_PREAMBLE_SECTIONS = ['## Sinopsis', '## License', '## Acknowledgements']
     TEST_CHAPTERS_FILES = 'manuscript/chapter_*'
-    TEST_EPILOGUE_FILE = 'manuscript/epilogue.md'
+    TEST_EPILOGUE_FILES = ['manuscript/epilogue.md']
 
     TEMPLATE_CONFIG = {
         Configuration.OUTPUT_FILEPATH_KEY: TEST_OUTPUT_FILEPATH,
         Configuration.PREAMBLE_SECTIONS_KEY: TEST_PREAMBLE_SECTIONS,
         Configuration.CHAPTERS_FILES_KEY: TEST_CHAPTERS_FILES,
-        Configuration.EPILOGUE_FILE_KEY: TEST_EPILOGUE_FILE
+        Configuration.EPILOGUE_FILES_KEY: TEST_EPILOGUE_FILES
     }
 
 
@@ -22,7 +22,7 @@ class TestConfiguration(TestCase):
         assert self.TEST_OUTPUT_FILEPATH == config.OUTPUT_FILEPATH
         assert self.TEST_PREAMBLE_SECTIONS == config.PREAMBLE_SECTIONS
         assert self.TEST_CHAPTERS_FILES == config.CHAPTERS_FILES
-        assert self.TEST_EPILOGUE_FILE == config.EPILOGUE_FILE
+        assert self.TEST_EPILOGUE_FILES == config.EPILOGUE_FILES
         
 
     def test_check_required_fields_ok(self):
@@ -61,7 +61,7 @@ class TestConfiguration(TestCase):
             Configuration.CHAPTERS_FILES_KEY)
 
 
-    def test_check_required_fields_missing_epilogue_file(self):
+    def test_check_required_fields_missing_epilogue_files(self):
         self.remove_key_then_assert_key_error(
             self.TEMPLATE_CONFIG, 
-            Configuration.EPILOGUE_FILE_KEY)
+            Configuration.EPILOGUE_FILES_KEY)

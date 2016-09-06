@@ -4,7 +4,7 @@ class Configuration:
     OUTPUT_FILEPATH_KEY = 'output-filepath'
     PREAMBLE_SECTIONS_KEY = 'preamble-sections'
     CHAPTERS_FILES_KEY = 'chapters-files'
-    EPILOGUE_FILE_KEY = 'epilogue-file'
+    EPILOGUE_FILES_KEY = 'epilogue-files'
     BOOK_STYLE_KEY = 'book-style'
 
     def __init__(self, config_dict):
@@ -13,7 +13,7 @@ class Configuration:
         self.OUTPUT_FILEPATH = config_dict[Configuration.OUTPUT_FILEPATH_KEY]
         self.PREAMBLE_SECTIONS = config_dict[Configuration.PREAMBLE_SECTIONS_KEY]
         self.CHAPTERS_FILES = config_dict[Configuration.CHAPTERS_FILES_KEY]
-        self.EPILOGUE_FILE = config_dict[Configuration.EPILOGUE_FILE_KEY]
+        self.EPILOGUE_FILES = config_dict[Configuration.EPILOGUE_FILES_KEY]
 
         if self.BOOK_STYLE_KEY in config_dict:
             if config_dict[self.BOOK_STYLE_KEY] == "true":
@@ -46,7 +46,7 @@ class Configuration:
             Configuration.OUTPUT_FILEPATH_KEY,
             Configuration.PREAMBLE_SECTIONS_KEY,
             Configuration.CHAPTERS_FILES_KEY,
-            Configuration.EPILOGUE_FILE_KEY
+            Configuration.EPILOGUE_FILES_KEY
         ]
 
         for key in required_keys:

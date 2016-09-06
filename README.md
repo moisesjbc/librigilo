@@ -19,7 +19,7 @@ A tool for creating PDF and/or Epub books from a Markdown manuscript.
                 "output-filepath": "book.pdf",
                 "book-style": "true",
                 "chapters-files": "manuscript/c*",
-                "epilogue-file": "manuscript/end-note.md",
+                "epilogue-files": ["manuscript/end-note.md"],
                 "preamble-sections": ["## Sinopsis", "## Licencia", "## Agradecimientos"]
             }
             {
@@ -33,7 +33,7 @@ Parameters:
 - `output-filepath`: Path for the generated PDF or Epub book.
 - `book-style` (only useful for PDF books): when True, Pandoc is told to generate the book with the "documentclass=book" value. Among other effects, this causes "left" or "right" pages to have a different style.
 - `chapters-files`: regular expression specifying the location of the chapters files.
-- `epilogue-file`: path to the file to be appended at the end of the book.
+- `epilogue-files`: path to the file to be appended at the end of the book.
 - `preamble-sections`: defines a list of sections in the README.md file to be included in the book before the chapters.
 
 

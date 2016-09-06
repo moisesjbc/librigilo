@@ -50,7 +50,7 @@ class BookGenerator():
         page_offset += chapters_pdf_n_pages - 1
         
         end_note_pdf_filepath = \
-            self.generate_end_note(prologue_filepath=configuration.EPILOGUE_FILE,          
+            self.generate_end_note(prologue_filepaths=configuration.EPILOGUE_FILES,          
                                     page_offset=page_offset)
             
         book_parts_paths = [
